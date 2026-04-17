@@ -17,19 +17,7 @@ const print = require('console')
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 // console.log("console.log() -> this is a global object (object b o hoti h jisse kabhi bhi improt krne ki jarurat nhi padti h  ");
-
 // console.log(process.cwd());
 // console.log(process.pid);
 // console.log("hello ");
