@@ -25,5 +25,4 @@ res.setHeader('Content-Type', 'application/json');
 res.write(JSON.stringify(userData))
 res.end();
 
-
 }).listen(3100);
