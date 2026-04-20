@@ -16,9 +16,7 @@ const userData = [
         age: 28,
         email: 'alice.johnson@example.com'
     }
-
 ];
-
 http.createServer((req, res) =>{
 
 res.setHeader('Content-Type', 'application/json');
