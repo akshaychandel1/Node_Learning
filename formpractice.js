@@ -1,6 +1,6 @@
 const http = require('http');
 const fs = require('fs');
-
+const querystring = require('querystring'); 
 
 http.createServer((req, res)=>{
  
@@ -19,11 +19,13 @@ http.createServer((req, res)=>{
          let dataBody = [];
          req.on(('data'),chunk=>{
              dataBody.push(chunk);
-             res.write(`Received data: ${chunk.toString()}`);
+            //  res.write(`Received data: ${chunk.toString()}`);
          })
          req.on('end',()=>{
             let rawData = Buffer.concat(dataBody).toString();
-            console.log(rawData);
+            let readableData = querystring.parse(rawData);
+            console.log(readableData);
+            res.write(`Parsed data: ${JSON.stringify(readableData)}`);
             res.end();
          })
        }
