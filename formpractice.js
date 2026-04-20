@@ -18,7 +18,8 @@ http.createServer((req, res)=>{
        else if (req.url == '/submit'){
          let dataBody = [];
          req.on(('data'),chunk=>{
-            dataBody.push(chunk);
+             dataBody.push(chunk);
+             res.write(`Received data: ${chunk.toString()}`);
          })
          req.on('end',()=>{
             let rawData = Buffer.concat(dataBody).toString();
