@@ -36,3 +36,12 @@ export const deleteUser = async (id: string) => {
   const result = await pool.query('DELETE FROM users WHERE id=$1 RETURNING id', [id]);
   return result.rows.length > 0;
 };
+
+export const updatePermissions = async (id: string, role?: string, permissions?: any) => {
+  const result = await pool.query(
+    'UPDATE users SET role = COALESCE($1, role), permissions = COALESCE($2, permissions) WHERE id=$3 RETURNING *',
+    [role || null, permissions ? JSON.stringify(permissions) : null, id]
+  );
+
+  return result.rows[0];
+};

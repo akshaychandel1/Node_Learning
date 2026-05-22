@@ -9,13 +9,20 @@ export const Register = () => {
     email: '',
     password: '',
     confirmPassword: '',
+    role: 'user',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const { setAuth } = useAuthStore();
+  const { user } = useAuthStore();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
@@ -34,7 +41,8 @@ export const Register = () => {
       const response = await authService.register(
         formData.name,
         formData.email,
-        formData.password
+        formData.password,
+        (formData as any).role
       );
       setAuth(response.user, response.token);
       navigate('/dashboard');
@@ -108,6 +116,21 @@ export const Register = () => {
               className="input-field"
               required
             />
+          </div>
+
+          <div>
+            <label className="block text-white font-semibold mb-2">Role</label>
+            <select
+              name="role"
+              value={(formData as any).role}
+              onChange={handleSelect}
+              className="input-field"
+            >
+              <option value="user">User</option>
+              <option value="manager">Manager</option>
+              <option value="admin">Admin</option>
+            </select>
+            <p className="text-xs text-white opacity-75 mt-1">Note: backend enforces role assignment; public signups default to `user` unless an admin issues the request.</p>
           </div>
 
           <button

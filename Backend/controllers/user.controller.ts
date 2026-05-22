@@ -5,6 +5,7 @@ import {
   getUsers,
   updateUser,
   deleteUser,
+  updatePermissions,
 } from '../services/user.service';
 
 export const create = async (
@@ -108,5 +109,29 @@ export const remove = async (
     res.status(500).json({
       error: 'Failed to delete user',
     });
+  }
+};
+
+export const setPermissions = async (req: Request, res: Response) => {
+  try {
+    const targetId = String(req.params.id);
+    const { role, permissions } = req.body;
+
+    // Only allow managers to assign up to 'manager' and not 'admin'
+    const requester = (req as any).user;
+    if (requester.role === 'manager' && role === 'admin') {
+      res.status(403).json({ error: 'Managers cannot assign admin role' });
+      return;
+    }
+
+    const updated = await updatePermissions(targetId, role, permissions);
+    if (!updated) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+
+    res.json(updated);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update permissions' });
   }
 };

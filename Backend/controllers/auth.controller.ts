@@ -5,7 +5,7 @@ import { pool } from '../config/db';
 
 export const register = async (req: Request, res: Response) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, role: requestedRole } = req.body;
 
     if (!name || !email || !password) {
       res.status(400).json({
@@ -28,17 +28,31 @@ export const register = async (req: Request, res: Response) => {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create user
+    // Determine assigned role: only allow requested role when requester is admin
+    let assignedRole = 'user';
+    const authHeader = req.headers.authorization?.split(' ')[1];
+    if (requestedRole && authHeader) {
+      try {
+        const decoded = jwt.verify(authHeader, process.env.JWT_SECRET || 'your-secret-key') as any;
+        if (decoded.role === 'admin' && ['user', 'manager', 'admin'].includes(requestedRole)) {
+          assignedRole = requestedRole;
+        }
+      } catch (e) {
+        // ignore token parse errors — default to 'user'
+      }
+    }
+
+    // Create user (role defaults to 'user', permissions default to empty)
     const result = await pool.query(
-      'INSERT INTO users(name, email, password) VALUES($1, $2, $3) RETURNING id, name, email',
-      [name, email, hashedPassword]
+      'INSERT INTO users(name, email, password, role, permissions) VALUES($1, $2, $3, $4, $5) RETURNING id, name, email, role, permissions',
+      [name, email, hashedPassword, assignedRole, JSON.stringify({})]
     );
 
     const user = result.rows[0];
 
-    // Generate token
+    // Generate token including role and permissions
     const token = jwt.sign(
-      { userId: user.id, email: user.email },
+      { userId: user.id, email: user.email, role: user.role, permissions: user.permissions },
       process.env.JWT_SECRET || 'your-secret-key',
       { expiresIn: '24h' }
     );
@@ -91,7 +105,7 @@ export const login = async (req: Request, res: Response) => {
 
     // Generate token
     const token = jwt.sign(
-      { userId: user.id, email: user.email },
+      { userId: user.id, email: user.email, role: user.role, permissions: user.permissions },
       process.env.JWT_SECRET || 'your-secret-key',
       { expiresIn: '24h' }
     );
@@ -103,6 +117,8 @@ export const login = async (req: Request, res: Response) => {
         id: user.id,
         name: user.name,
         email: user.email,
+        role: user.role,
+        permissions: user.permissions,
       },
     });
   } catch (error: any) {

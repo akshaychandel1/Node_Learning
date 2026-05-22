@@ -15,8 +15,12 @@ api.interceptors.request.use((config) => {
     return config;
 });
 export const authService = {
-    register: async (name, email, password) => {
-        const response = await api.post('/auth/register', { name, email, password });
+    register: async (name, email, password, role) => {
+        // role is optional; backend enforces whether it can be assigned
+        const body = { name, email, password };
+        if (role)
+            body.role = role;
+        const response = await api.post('/auth/register', body);
         return response.data;
     },
     login: async (email, password) => {
@@ -73,6 +77,10 @@ export const userService = {
     },
     deleteUser: async (id) => {
         const response = await api.delete(`/users/${id}`);
+        return response.data;
+    },
+    setPermissions: async (id, role, permissions) => {
+        const response = await api.patch(`/users/${id}/permissions`, { role, permissions });
         return response.data;
     },
 };

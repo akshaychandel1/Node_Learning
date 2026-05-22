@@ -2,6 +2,8 @@ export interface User {
   id?: number;
   name: string;
   email: string;
+  role?: string;
+  permissions?: Record<string, boolean>;
 }
 
 export interface Note {

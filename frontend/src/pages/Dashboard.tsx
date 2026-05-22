@@ -29,6 +29,11 @@ export const Dashboard = () => {
             <h1 className="text-4xl font-bold text-white">Notes App</h1>
             <p className="text-white opacity-90 mt-1">Welcome, {user?.name}!</p>
           </div>
+          {user?.role === 'admin' && (
+            <div className="flex items-center space-x-4">
+              <a href="/admin/users" className="btn-secondary">Manage Users</a>
+            </div>
+          )}
           <button
             onClick={handleLogout}
             className="btn-secondary"

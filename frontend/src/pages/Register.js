@@ -9,12 +9,18 @@ export const Register = () => {
         email: '',
         password: '',
         confirmPassword: '',
+        role: 'user',
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const navigate = useNavigate();
     const { setAuth } = useAuthStore();
+    const { user } = useAuthStore();
     const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData((prev) => ({ ...prev, [name]: value }));
+    };
+    const handleSelect = (e) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
@@ -27,7 +33,7 @@ export const Register = () => {
         }
         setLoading(true);
         try {
-            const response = await authService.register(formData.name, formData.email, formData.password);
+            const response = await authService.register(formData.name, formData.email, formData.password, formData.role);
             setAuth(response.user, response.token);
             navigate('/dashboard');
         }
@@ -38,5 +44,5 @@ export const Register = () => {
             setLoading(false);
         }
     };
-    return (_jsx("div", { className: "min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-500 via-pink-500 to-red-500 p-4", children: _jsxs("div", { className: "glass-effect rounded-2xl p-8 w-full max-w-md shadow-2xl", children: [_jsx("h1", { className: "text-4xl font-bold text-white mb-2 text-center", children: "Create Account" }), _jsx("p", { className: "text-white text-center mb-8 opacity-90", children: "Join us today" }), error && (_jsx("div", { className: "bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4", children: error })), _jsxs("form", { onSubmit: handleSubmit, className: "space-y-4", children: [_jsxs("div", { children: [_jsx("label", { className: "block text-white font-semibold mb-2", children: "Full Name" }), _jsx("input", { type: "text", name: "name", value: formData.name, onChange: handleChange, placeholder: "John Doe", className: "input-field", required: true })] }), _jsxs("div", { children: [_jsx("label", { className: "block text-white font-semibold mb-2", children: "Email" }), _jsx("input", { type: "email", name: "email", value: formData.email, onChange: handleChange, placeholder: "you@example.com", className: "input-field", required: true })] }), _jsxs("div", { children: [_jsx("label", { className: "block text-white font-semibold mb-2", children: "Password" }), _jsx("input", { type: "password", name: "password", value: formData.password, onChange: handleChange, placeholder: "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022", className: "input-field", required: true })] }), _jsxs("div", { children: [_jsx("label", { className: "block text-white font-semibold mb-2", children: "Confirm Password" }), _jsx("input", { type: "password", name: "confirmPassword", value: formData.confirmPassword, onChange: handleChange, placeholder: "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022", className: "input-field", required: true })] }), _jsx("button", { type: "submit", disabled: loading, className: "btn-primary w-full mt-6 disabled:opacity-50", children: loading ? 'Creating Account...' : 'Sign Up' })] }), _jsxs("p", { className: "text-center text-white mt-6", children: ["Already have an account?", ' ', _jsx("a", { href: "/login", className: "font-bold hover:underline", children: "Login" })] })] }) }));
+    return (_jsx("div", { className: "min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-500 via-pink-500 to-red-500 p-4", children: _jsxs("div", { className: "glass-effect rounded-2xl p-8 w-full max-w-md shadow-2xl", children: [_jsx("h1", { className: "text-4xl font-bold text-white mb-2 text-center", children: "Create Account" }), _jsx("p", { className: "text-white text-center mb-8 opacity-90", children: "Join us today" }), error && (_jsx("div", { className: "bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4", children: error })), _jsxs("form", { onSubmit: handleSubmit, className: "space-y-4", children: [_jsxs("div", { children: [_jsx("label", { className: "block text-white font-semibold mb-2", children: "Full Name" }), _jsx("input", { type: "text", name: "name", value: formData.name, onChange: handleChange, placeholder: "John Doe", className: "input-field", required: true })] }), _jsxs("div", { children: [_jsx("label", { className: "block text-white font-semibold mb-2", children: "Email" }), _jsx("input", { type: "email", name: "email", value: formData.email, onChange: handleChange, placeholder: "you@example.com", className: "input-field", required: true })] }), _jsxs("div", { children: [_jsx("label", { className: "block text-white font-semibold mb-2", children: "Password" }), _jsx("input", { type: "password", name: "password", value: formData.password, onChange: handleChange, placeholder: "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022", className: "input-field", required: true })] }), _jsxs("div", { children: [_jsx("label", { className: "block text-white font-semibold mb-2", children: "Confirm Password" }), _jsx("input", { type: "password", name: "confirmPassword", value: formData.confirmPassword, onChange: handleChange, placeholder: "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022", className: "input-field", required: true })] }), _jsxs("div", { children: [_jsx("label", { className: "block text-white font-semibold mb-2", children: "Role" }), _jsxs("select", { name: "role", value: formData.role, onChange: handleSelect, className: "input-field", children: [_jsx("option", { value: "user", children: "User" }), _jsx("option", { value: "manager", children: "Manager" }), _jsx("option", { value: "admin", children: "Admin" })] }), _jsx("p", { className: "text-xs text-white opacity-75 mt-1", children: "Note: backend enforces role assignment; public signups default to `user` unless an admin issues the request." })] }), _jsx("button", { type: "submit", disabled: loading, className: "btn-primary w-full mt-6 disabled:opacity-50", children: loading ? 'Creating Account...' : 'Sign Up' })] }), _jsxs("p", { className: "text-center text-white mt-6", children: ["Already have an account?", ' ', _jsx("a", { href: "/login", className: "font-bold hover:underline", children: "Login" })] })] }) }));
 };
