@@ -38,14 +38,22 @@ export const Register = () => {
 
     setLoading(true);
     try {
+      // If current user is admin, call regular register with admin token present
+      // (backend accepts role when a valid admin token is provided).
       const response = await authService.register(
         formData.name,
         formData.email,
         formData.password,
         (formData as any).role
       );
-      setAuth(response.user, response.token);
-      navigate('/dashboard');
+
+      // If admin created the user, do not overwrite local auth; redirect to admin users
+      if (user && (user as any).role === 'admin') {
+        navigate('/admin/users');
+      } else {
+        setAuth(response.user, response.token);
+        navigate('/dashboard');
+      }
     } catch (err: any) {
       setError(err.response?.data?.error || 'Registration failed');
     } finally {
@@ -130,7 +138,6 @@ export const Register = () => {
               <option value="manager">Manager</option>
               <option value="admin">Admin</option>
             </select>
-            <p className="text-xs text-white opacity-75 mt-1">Note: backend enforces role assignment; public signups default to `user` unless an admin issues the request.</p>
           </div>
 
           <button

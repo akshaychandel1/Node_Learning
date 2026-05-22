@@ -12,10 +12,14 @@ interface AuthStore {
   initAuth: () => void;
 }
 
+const _token = localStorage.getItem('token');
+const _userStr = localStorage.getItem('user');
+const _user = _userStr ? JSON.parse(_userStr) : null;
+
 export const useAuthStore = create<AuthStore>((set) => ({
-  user: null,
-  token: null,
-  isAuthenticated: false,
+  user: _user,
+  token: _token,
+  isAuthenticated: !!(_token && _user),
 
   setUser: (user) => set({ user }),
 
@@ -37,11 +41,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
     const token = localStorage.getItem('token');
     const user = localStorage.getItem('user');
     if (token && user) {
-      set({
-        token,
-        user: JSON.parse(user),
-        isAuthenticated: true,
-      });
+      set({ token, user: JSON.parse(user), isAuthenticated: true });
     }
   },
 }));

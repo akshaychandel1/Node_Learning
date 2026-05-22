@@ -94,6 +94,10 @@ export const userService = {
     const response = await api.delete(`/users/${id}`);
     return response.data;
   },
+  adminCreate: async (user: any) => {
+    const response = await api.post('/users/admin', user);
+    return response.data;
+  },
   setPermissions: async (id: number, role: string | null, permissions: Record<string, boolean>) => {
     const response = await api.patch(`/users/${id}/permissions`, { role, permissions });
     return response.data;

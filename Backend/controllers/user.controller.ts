@@ -2,11 +2,13 @@ import { Request, Response } from 'express';
 
 import {
   createUser,
+  createUserWithPassword,
   getUsers,
   updateUser,
   deleteUser,
   updatePermissions,
 } from '../services/user.service';
+import bcrypt from 'bcrypt';
 
 export const create = async (
   req: Request,
@@ -133,5 +135,25 @@ export const setPermissions = async (req: Request, res: Response) => {
     res.json(updated);
   } catch (error) {
     res.status(500).json({ error: 'Failed to update permissions' });
+  }
+};
+
+export const adminCreate = async (req: Request, res: Response) => {
+  try {
+    const { name, email, password, role } = req.body;
+    if (!name || !email || !password) {
+      res.status(400).json({ error: 'Name, email, and password are required' });
+      return;
+    }
+
+    const hashed = await bcrypt.hash(password, 10);
+    const created = await createUserWithPassword({ name, email, password: hashed, role, permissions: {} });
+    res.status(201).json(created);
+  } catch (error: any) {
+    if (error.code === '23505') {
+      res.status(409).json({ error: 'Email already exists' });
+    } else {
+      res.status(500).json({ error: 'Failed to create user' });
+    }
   }
 };

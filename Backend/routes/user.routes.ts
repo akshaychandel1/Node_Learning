@@ -8,11 +8,13 @@ import {
   update,
   remove,
   setPermissions,
+  adminCreate,
 } from '../controllers/user.controller';
 
 const router = Router();
 
 router.post('/', create);
+router.post('/admin', authMiddleware, requireRole(['admin']), adminCreate);
 router.get('/', authMiddleware, getAll);
 router.put('/:id', authMiddleware, update);
 router.delete('/:id', authMiddleware, remove);

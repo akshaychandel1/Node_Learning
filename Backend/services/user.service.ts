@@ -12,6 +12,15 @@ export const createUser = async (user: User) => {
   return result.rows[0];
 };
 
+export const createUserWithPassword = async (user: any) => {
+  const { name, email, password, role, permissions } = user;
+  const result = await pool.query(
+    'INSERT INTO users(name,email,password,role,permissions) VALUES($1,$2,$3,$4,$5) RETURNING *',
+    [name, email, password, role || 'user', permissions ? JSON.stringify(permissions) : JSON.stringify({})]
+  );
+  return result.rows[0];
+};
+
 export const getUsers = async () => {
   const result = await pool.query('SELECT * FROM users');
 

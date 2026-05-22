@@ -16,9 +16,14 @@ export const requireRole = (roleAllowed: string[]) => {
 // permissionName: 'view'|'create'|'edit'|'delete'
 export const requirePermission = (permissionName: string) => {
   return (req: AuthRequest, res: Response, next: NextFunction) => {
+    // Admins always have all permissions
+    if (req.user?.role === 'admin') {
+      next();
+      return;
+    }
     const permissions = req.user?.permissions || {};
     if (!permissions[permissionName]) {
-      res.status(403).json({ error: 'Insufficient permission' });
+      res.status(403).json({ error: `Permission denied: '${permissionName}' required` });
       return;
     }
     next();

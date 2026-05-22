@@ -28,21 +28,17 @@ export const register = async (req: Request, res: Response) => {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Determine assigned role: only allow requested role when requester is admin
+    // Allow any valid role to be chosen at signup
+    const validRoles = ['user', 'manager', 'admin'];
     let assignedRole = 'user';
-    const authHeader = req.headers.authorization?.split(' ')[1];
-    if (requestedRole && authHeader) {
-      try {
-        const decoded = jwt.verify(authHeader, process.env.JWT_SECRET || 'your-secret-key') as any;
-        if (decoded.role === 'admin' && ['user', 'manager', 'admin'].includes(requestedRole)) {
-          assignedRole = requestedRole;
-        }
-      } catch (e) {
-        // ignore token parse errors — default to 'user'
-      }
+    if (requestedRole && validRoles.includes(requestedRole)) {
+      assignedRole = requestedRole;
+    } else if (requestedRole) {
+      res.status(400).json({ error: 'Invalid role. Must be user, manager, or admin' });
+      return;
     }
 
-    // Create user (role defaults to 'user', permissions default to empty)
+    // Create user
     const result = await pool.query(
       'INSERT INTO users(name, email, password, role, permissions) VALUES($1, $2, $3, $4, $5) RETURNING id, name, email, role, permissions',
       [name, email, hashedPassword, assignedRole, JSON.stringify({})]
@@ -51,7 +47,7 @@ export const register = async (req: Request, res: Response) => {
     const user = result.rows[0];
 
     // Generate token including role and permissions
-    const token = jwt.sign(
+    const generatedToken = jwt.sign(
       { userId: user.id, email: user.email, role: user.role, permissions: user.permissions },
       process.env.JWT_SECRET || 'your-secret-key',
       { expiresIn: '24h' }
@@ -59,7 +55,7 @@ export const register = async (req: Request, res: Response) => {
 
     res.status(201).json({
       message: 'User registered successfully',
-      token,
+      token: generatedToken,
       user,
     });
   } catch (error: any) {
