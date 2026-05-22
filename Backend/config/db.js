@@ -15,3 +15,16 @@ exports.pool = new pg_1.Pool({
     password: process.env.DB_PASSWORD,
     port: Number(process.env.DB_PORT),
 });
+
+async function testDB() {
+    try {
+        await exports.pool.query('SELECT 1');
+        console.log('Database connection OK');
+    }
+    catch (err) {
+        console.error('Failed to connect to the database. Please check Backend/.env and your Postgres server.');
+        console.error('DB error:', err.message || err);
+        throw err;
+    }
+}
+exports.testDB = testDB;
